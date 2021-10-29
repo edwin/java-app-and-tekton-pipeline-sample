@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  params:
+    - name: app-git
+      description: the git repo
+    - name: uid
+      description: uid
+  workspaces:
+    - name: task-pvc
+      mountPath: /workspace/source 
+  steps:
+    - name: git-clone
+      command: ["/bin/sh", "-c"]
+      args:
+        - | 
+          set -e -o
+          echo "git clone";
+
+          mkdir /workspace/source/$(params.uid) && cd /workspace/source/$(params.uid);
+          git clone $(params.app-git) /workspace/source/$(params.uid);
+
+      image: image-registry.openshift-image-registry.svc:5000/openshift/jenkins-agent-maven

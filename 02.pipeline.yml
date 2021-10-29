@@ -1,0 +1,68 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: hello-world-java-build-and-deploy
+spec:
+  params:
+    - name: uid
+      description: the uid
+  workspaces:
+    - name: task-pvc
+  tasks:
+  - name: git-clone
+    taskRef:
+      name: git-clone
+    params:
+    - name: app-git
+      value: https://github.com/edwin/spring-boot-hello-world
+    - name: uid
+      value: $(params.uid)
+    workspaces:
+    - name: task-pvc
+      workspace: task-pvc
+  - name: build
+    taskRef:
+      name: mvn
+    runAfter: ["git-clone"]
+    params:
+    - name: goal
+      value: "package"
+    - name: uid
+      value: $(params.uid)
+    workspaces:
+    - name: task-pvc
+      workspace: task-pvc
+  - name: test
+    taskRef:
+      name: mvn
+    runAfter: ["build"]
+    params:
+    - name: goal
+      value: "test"
+    - name: uid
+      value: $(params.uid)
+    workspaces:
+    - name: task-pvc
+      workspace: task-pvc
+  - name: integration-test
+    taskRef:
+      name: mvn
+    runAfter: ["build"]
+    params:
+    - name: goal
+      value: "test"
+    - name: uid
+      value: $(params.uid)
+    workspaces:
+    - name: task-pvc
+      workspace: task-pvc      
+  - name: deploy
+    taskRef:
+      name: deploy-and-clean
+    runAfter: ["integration-test","test"]
+    params:
+    - name: uid
+      value: $(params.uid)
+    workspaces:
+    - name: task-pvc
+      workspace: task-pvc

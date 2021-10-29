@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  generateName: hello-world-run
+spec:
+  params:
+    - name: uid
+      value: $(context.pipelineRun.uid)
+  pipelineRef:
+    name: maven-build
+  workspaces:
+    - name: task-pvc
+      persistentVolumeClaim:
+        claimName: tekton-pvc

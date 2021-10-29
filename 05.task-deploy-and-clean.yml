@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-and-clean
+spec:
+  params:
+    - name: uid
+      description: uid
+  workspaces:
+    - name: task-pvc
+      mountPath: /workspace/source 
+  steps:
+    - name: git-clone
+      command: ["/bin/sh", "-c"]
+      args:
+        - | 
+          set -e -o
+
+          cd /workspace/source/$(params.uid) ;
+          mkdir build-folder ;
+          cp target/*.jar build-folder/ ;
+
+          oc login --insecure-skip-tls-verify --token=my-openshift-token --server=https://api.my-openshift-url.com:6443 ;
+
+          oc new-build  --name hello-world --binary=true -n edwin-deploy --image-stream=openjdk-11  || true ;
+          oc start-build hello-world --from-dir=build-folder/. -n edwin-deploy --follow --wait ;
+          oc new-app hello-world -n edwin-deploy || true ;
+          oc expose svc/hello-world -n edwin-deploy || true ;
+
+          cd / ;
+          rm -Rf /workspace/source/$(params.uid) ;
+      image: image-registry.openshift-image-registry.svc:5000/openshift/jenkins-agent-maven
