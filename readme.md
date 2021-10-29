@@ -16,9 +16,9 @@ oc create -f 05.task-deploy-and-clean.yml -n edwin-pipeline
 oc create -f 06.pipeline-run.yml -n edwin-pipeline
 ```
 
-Code
+Java Code
 --------------------
-Code are taken from below repository,
+Spring Boot code are taken from below repository
 ```
 https://github.com/edwin/spring-boot-hello-world
 ```
