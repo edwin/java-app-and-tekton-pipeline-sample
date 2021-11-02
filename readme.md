@@ -22,3 +22,9 @@ Spring Boot code are taken from below repository
 ```
 https://github.com/edwin/spring-boot-hello-world
 ```
+
+Blog Post
+--------------------
+```
+https://edwin.baculsoft.com/2021/11/deploy-a-java-application-to-openshift-by-using-tekton-pipeline/
+```
